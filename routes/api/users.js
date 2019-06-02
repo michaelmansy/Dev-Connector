@@ -4,6 +4,8 @@ const router = express.Router();
 const User = require('../../models/User');
 const gravatar = require('gravatar');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const config = require('config');
 
 
 //validation
@@ -55,12 +57,26 @@ router.post('/', [
             await user.save();   //save user to db
 
             //return jsonwebtoken
+            const payload = {
+                user: {
+                    id: user.id,
+                    email: user.email
+                }
+            };
 
-            res.send('User registered');
+            jwt.sign(payload,
+                config.get('jwtSecret'),
+                { expiresIn: 360000 },
+                (err, token) => {
+                    if (err) throw err;
+                    res.json({ token });
+                });
+
+            // res.send('User registered');
 
         } catch (err) {
             console.log(err.message);
-            res.status(500).send('Server Started but there is an issue');
+            res.status(500).send('Server Started but there is an issue ya7mar');
         }
 
     });
